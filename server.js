@@ -1,13 +1,19 @@
 const http = require('http')
 const express = require('express')
 const { Server } = require('socket.io')
+const { boardRoute } = require('./routes/boards')
+const cors = require('cors')
 
 const PORT = 3000 || process.env.PORT
 
 const app = express()
+app.use(cors({origin: "http://localhost:5173", credentials: true}))
+app.use(express.json());
+
+app.use('/api/boards', boardRoute)
+
 const server = http.createServer(app)
 
-// Sirve para poder vincular sockets con el servidor http.
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",

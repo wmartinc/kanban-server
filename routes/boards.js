@@ -1,0 +1,20 @@
+const express = require('express');
+const { getAllBoards, createBoard } = require('../databaseActions/boardsDB');
+const boardRoute = express.Router()
+
+boardRoute.get('/', async(req, resp)=> {
+  const boards = await getAllBoards();
+  return resp.status(200).json(boards);
+})
+
+// Adding sanitization to create boards.
+boardRoute.post('/createBoard', async(req, resp) => {
+  const {boardName, description} = req.body
+  const boardCreated = await createBoard(boardName, description)
+  if(boardCreated) return resp.status(201).json({confirmation: true});
+  return resp.status(400).json({confirmation: false})
+})
+
+module.exports = {
+  boardRoute
+}
