@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllBoards, createBoard } = require('../databaseActions/boardsDB');
+const { getAllBoards, createBoard, getFavorites } = require('../databaseActions/boardsDB');
 const boardRoute = express.Router()
 
 boardRoute.get('/', async(req, resp)=> {
@@ -12,6 +12,12 @@ boardRoute.post('/createBoard', async(req, resp) => {
   const {boardName, description} = req.body
   const boardCreated = await createBoard(boardName, description)
   if(boardCreated) return resp.status(201).json({confirmation: true});
+  return resp.status(400).json({confirmation: false})
+})
+
+boardRoute.get("/favorites", async(req, resp) => {
+  const favoriteTasks = await getFavorites();
+  if(favoriteTasks) return resp.status(200).json({confirmation: true, data: favoriteTasks});
   return resp.status(400).json({confirmation: false})
 })
 
