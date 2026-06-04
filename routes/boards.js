@@ -17,7 +17,7 @@ boardRoute.post('/createBoard', async(req, resp) => {
 
 boardRoute.get("/favorites", async(req, resp) => {
   const favoriteTasks = await getFavorites();
-  if(favoriteTasks) return resp.status(200).json({confirmation: true, data: favoriteTasks});
+  if(favoriteTasks) return resp.status(200).json({confirmation: true, favorites: favoriteTasks});
   return resp.status(400).json({confirmation: false})
 })
 

@@ -23,7 +23,7 @@ const createBoard = async (boardName, boardDescription) => {
 const getFavorites = async() => {
   try {
     const { data } = await conexion.from('favorite_tasks').select('*')
-    if(data.length > 0) return true
+    if(data.length > 0) return data
     return false;
   } catch (error) {
     console.log(error.message);
