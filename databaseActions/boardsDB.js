@@ -31,8 +31,20 @@ const getFavorites = async() => {
   }
 }
 
+const getColumns = async (boardName) => {
+  try {
+    const { data } = await conexion.from('boards').select('*').eq('board_name', boardName)
+    if(data.length > 0) return data
+    return false
+  } catch (error) {
+    console.log(error.message)
+    return false;
+  }
+}
+
 module.exports = {
   getAllBoards,
   createBoard,
-  getFavorites
+  getFavorites,
+  getColumns
 }
