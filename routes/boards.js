@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllBoards, createBoard, getFavorites, getColumns } = require('../databaseActions/boardsDB');
+const { getAllBoards, createBoard, getFavorites, getBoardInfo } = require('../databaseActions/boardsDB');
 const boardRoute = express.Router()
 
 boardRoute.get('/', async(req, resp)=> {
@@ -23,8 +23,9 @@ boardRoute.get("/favorites", async(req, resp) => {
 
 boardRoute.get('/columns/:boardName', async(req, res) => {
   const { boardName } = req.params;
-  const columns = await getColumns(boardName);
-  if(columns) return res.status(200).json({confirmation: true, columns: columns});
+  const {columns, data} = await getBoardInfo(boardName);
+
+  if(columns && data) return res.status(200).json({confirmation: true, columns: columns, boardInfo: data});
   return res.status(400).json({confirmation: false})
 })
 

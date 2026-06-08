@@ -2,6 +2,7 @@ const http = require('http')
 const express = require('express')
 const { Server } = require('socket.io')
 const { boardRoute } = require('./routes/boards')
+const { tasksRoute } = require('./routes/tasks')
 const cors = require('cors')
 
 const PORT = 3000 || process.env.PORT
@@ -11,6 +12,7 @@ app.use(cors({origin: "http://localhost:5173", credentials: true}))
 app.use(express.json());
 
 app.use('/api/boards', boardRoute)
+app.use('/api/tasks', tasksRoute)
 
 const server = http.createServer(app)
 
