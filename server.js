@@ -8,7 +8,8 @@ const cors = require('cors')
 const PORT = 3000 || process.env.PORT
 
 const app = express()
-app.use(cors({origin: "http://localhost:5173", credentials: true}))
+app.use(morgan('dev'))
+app.use(cors({ origin: "http://localhost:5173", credentials: true }))
 app.use(express.json());
 
 app.use('/api/boards', boardRoute)
@@ -26,7 +27,7 @@ io.on('connection', (socket) => {
   socket.on('mensaje', (obj) => {
     console.log(obj)
   })
-  })
+})
 
 io.on('mensaje', (obj) => {
   console.log(obj)

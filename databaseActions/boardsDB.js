@@ -34,35 +34,30 @@ const getFavorites = async() => {
 const getBoardInfo = async (boardName) => {
   try {
     // Check if the board really exists
+    let converData = []
+    const { data } = await conexion.from('boards').select('*, columns(*)').eq('board_name', boardName)
 
-    const { data } = await conexion.from('boards').select('*').eq('board_name', boardName)
-    if(data.length > 0) {
-      const columns = await getColumns(data[0].id)
-      return {columns, data: data[0]}
+    if (data.length > 0) {
+      for (const item of data[0].columns) {
+        const tasks = await getTasks(item)
+        converData = { ...converData, [item.column_name]: tasks }
+      }
+      return converData
     }
     return false
-  } catch (error) { 
+  } catch (error) {
     console.log(error.message)
     return false;
   }
 }
 
-const getColumns = async (boardId) => {
-  try {
-    const { data } = await conexion.from('columns').select('*').eq("id_board", boardId)
-    if(data.length > 0) return data;
-    return false;
-  } catch (error) {
-    console.log("Error en columnas",error.message)
-    return false;
-  }
-
+const getTasks = async (column) => {
+  const { data } = await conexion.from('columns').select("tasks(*)").eq("id", column.id)
+  return data[0].tasks
 }
-
 module.exports = {
   getAllBoards,
   createBoard,
   getFavorites,
-  getColumns,
   getBoardInfo
 }

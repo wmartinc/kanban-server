@@ -23,9 +23,9 @@ boardRoute.get("/favorites", async(req, resp) => {
 
 boardRoute.get('/columns/:boardName', async(req, res) => {
   const { boardName } = req.params;
-  const {columns, data} = await getBoardInfo(boardName);
-
-  if(columns && data) return res.status(200).json({confirmation: true, columns: columns, boardInfo: data});
+  const boardInformation = await getBoardInfo(boardName);
+  console.log('peticion')
+  if(boardInformation) return res.status(200).json({confirmation: true, boardInformation});
   return res.status(400).json({confirmation: false})
 })
 
