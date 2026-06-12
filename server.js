@@ -6,10 +6,12 @@ const { tasksRoute } = require('./routes/tasks')
 const cors = require('cors')
 const morgan = require('morgan')
 const loginRoute = require('./routes/login')
+const cookieParser = require('cookie-parser')
 
 const PORT = 3000 || process.env.PORT
 
 const app = express()
+app.use(cookieParser())
 app.use(morgan('dev'))
 app.use(cors({ origin: "http://localhost:5173", credentials: true }))
 app.use(express.json());
