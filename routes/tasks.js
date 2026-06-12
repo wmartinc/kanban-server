@@ -1,5 +1,4 @@
 const express = require('express');
-const { getTasksByColumnId } = require('../databaseActions/tasksDB');
 const tasksRoute = express.Router();
 
 // Support query parameter: GET /api/tasks?columnId=xxx

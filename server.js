@@ -4,6 +4,8 @@ const { Server } = require('socket.io')
 const { boardRoute } = require('./routes/boards')
 const { tasksRoute } = require('./routes/tasks')
 const cors = require('cors')
+const morgan = require('morgan')
+const loginRoute = require('./routes/login')
 
 const PORT = 3000 || process.env.PORT
 
@@ -14,6 +16,7 @@ app.use(express.json());
 
 app.use('/api/boards', boardRoute)
 app.use('/api/tasks', tasksRoute)
+app.use('/api/auth', loginRoute)
 
 const server = http.createServer(app)
 
