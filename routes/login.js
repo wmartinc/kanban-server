@@ -15,17 +15,18 @@ loginRoute.post('/login', async (req, res) => {
 
   const sesionCreated = createSesion(res, usuario);
   if (!sesionCreated) return res.status(500).json({ confirmation: false, message: 'Something went wrong!' });
-  const {id, password:_, created_at, ...nuevoUsuario} = usuario
+  const {id, password:_, created_at, ...newUser} = usuario
 
-  return res.status(200).json({ confirmation: true, nuevoUsuario })
+  return res.status(200).json({ confirmation: true, newUser })
 })
 
 loginRoute.get('/login', verifySesion, (req, resp) => {
   if(req.user) {
-    return resp.status(200).json({ confirmation: true, user: req.user })
+    console.log(req.user)
+    return resp.status(200).json({ confirmation: true, content: req.user })
   }
-  return resp.status(500).json({ confirmation: false, message: 'Something went wrong!' });
-})
+  return resp.status(500).json({ confirmation: false, content: 'Something went wrong!' });
+})      
 
 
 module.exports = loginRoute;

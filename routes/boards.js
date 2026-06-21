@@ -3,8 +3,9 @@ const { getAllBoards, createBoard, getFavorites, getBoardInfo } = require('../da
 const boardRoute = express.Router()
 
 boardRoute.get('/', async(req, resp)=> {
+  console.log("laksdja")
   const boards = await getAllBoards();
-  return resp.status(200).json(boards);
+  return resp.status(200).json({confirmation: true, content: boards});
 })
 
 // Adding sanitization to create boards.
@@ -21,10 +22,9 @@ boardRoute.get("/favorites", async(req, resp) => {
   return resp.status(400).json({confirmation: false})
 })
 
-boardRoute.get('/columns/:boardName', async(req, res) => {
+boardRoute.get('/board/:boardName', async(req, res) => {
   const { boardName } = req.params;
   const boardInformation = await getBoardInfo(boardName);
-  console.log('peticion')
   if(boardInformation) return res.status(200).json({confirmation: true, boardInformation});
   return res.status(400).json({confirmation: false})
 })

@@ -35,20 +35,40 @@ const createSesion = (res, usuario) => {
 
 }
 
-const verifyToken = (token) => {
-  const user = jwt.verify(token, process.env.JWT_SECRET_REFRESH)
-  const {iat, exp, password, id, created_at, ...newUser} = user
-  return newUser
+const verifyRefreshToken = (refreshToken) => {
+  try {
+    const user = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH)
+    const {iat, exp, password, id, created_at, ...newUser} = user
+    return newUser
+  } catch (error) {
+    console.log(error.message)
+    return null
+  }
+}
+
+const verifyAccessToken = (accessToken) => {
+  try {
+    const user = jwt.verify(accessToken, process.env.JWT_SECRET)
+    const {iat, exp, password, id, created_at, ...newUser} = user
+    return newUser
+  } catch (error) {
+    console.log(error.message)
+    return null
+  }
 }
 
 const verifySesion = (req, res, next) => {
+  
   try {
     const refreshToken = req.cookies["refreshToken"]
     const accessToken = req.cookies["accessToken"]
+    
     if (!accessToken && !refreshToken) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
 
     if (!accessToken && refreshToken) {
-      const user = verifyToken(refreshToken)
+      
+      const user = verifyRefreshToken(refreshToken)
+      
       if (!user) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
       try {
         const access = createAccessToken(user)
@@ -60,6 +80,12 @@ const verifySesion = (req, res, next) => {
         return res.status(500).json({ confirmation: false, message: 'Something went wrong!' });
       }
     }
+    // if there is an access token:
+    const user = verifyAccessToken(accessToken)
+    if (!user) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
+    req.user = user
+    next()
+
   } catch (error) {
     console.log(error.message)
     return res.status(500).json({ confirmation: false, message: 'Something went wrong!' });

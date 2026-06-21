@@ -7,6 +7,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const loginRoute = require('./routes/login')
 const cookieParser = require('cookie-parser')
+const { conexion } = require('./controllers/connection')
 
 const PORT = 3000 || process.env.PORT
 
@@ -28,15 +29,23 @@ const io = new Server(server, {
   }
 });
 
-io.on('connection', (socket) => {
-  socket.on('mensaje', (obj) => {
-    console.log(obj)
-  })
-})
+const onConnection = (socket) => {
+  console.log('A user connected');
 
-io.on('mensaje', (obj) => {
-  console.log(obj)
-})
+  socket.on('selectBoard', async (dataUser) => {
+    const { data } = await conexion.from('user').update({"main_board": dataUser}).eq("id", 1).select("*")
+    if(data.length >  0) {
+      socket.emit('selectBoardResponse', data)
+    } 
+    
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+}
+
+io.on('connection', onConnection)
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
