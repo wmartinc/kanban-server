@@ -38,7 +38,7 @@ const createSesion = (res, usuario) => {
 const verifyRefreshToken = (refreshToken) => {
   try {
     const user = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH)
-    const {iat, exp, password, id, created_at, ...newUser} = user
+    const {iat, exp, password, id, created_at, main_board, ...newUser} = user
     return newUser
   } catch (error) {
     console.log(error.message)
@@ -49,7 +49,7 @@ const verifyRefreshToken = (refreshToken) => {
 const verifyAccessToken = (accessToken) => {
   try {
     const user = jwt.verify(accessToken, process.env.JWT_SECRET)
-    const {iat, exp, password, id, created_at, ...newUser} = user
+    const {iat, exp, password, id, created_at, main_board, ...newUser} = user
     return newUser
   } catch (error) {
     console.log(error.message)
