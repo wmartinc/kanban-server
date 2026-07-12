@@ -7,9 +7,10 @@ const { verifyPassword } = require('../utils/verifications');
 // Iniciar sesion
 loginRoute.post('/login', async (req, res) => {
   const { email, password } = req.body
+  
   const usuario = await getUsuarioByEmail(email)
   if (!usuario) return res.status(400).json({ confirmation: false, message: 'Something went wrong!' });
-
+  
   const isPasswordValid = await verifyPassword(password, usuario.password)
   if (!isPasswordValid) return res.status(400).json({ confirmation: false, message: 'Something went wrong!' });
 
@@ -20,13 +21,12 @@ loginRoute.post('/login', async (req, res) => {
 })
 
 loginRoute.get('/login', verifySesion, async (req, resp) => {
-  const savedUser = req.user
+  const savedUser = req.user  
   if(!savedUser)  return resp.status(500).json({ confirmation: false, content: 'Something went wrong!' });
 
   const dbUser = await getUserById(savedUser.id)
   if(!dbUser) return resp.status(500).json({confirmation: false, content: 'Something went wrong!'})
   savedUser.main_board = dbUser.main_board
-
   return resp.status(200).json({ confirmation: true, content: savedUser })
   
 })      

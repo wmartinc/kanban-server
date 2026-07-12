@@ -6,7 +6,7 @@ const createAccessToken = (usuario) => {
 }
 
 const createRefreshToken = (usuario) => {
-  return jwt.sign(usuario, process.env.JWT_SECRET, { expiresIn: "7d" })
+  return jwt.sign(usuario, process.env.JWT_SECRET_REFRESH, { expiresIn: "7d" })
 }
 
 const createSesion = (res, usuario) => {
@@ -17,13 +17,13 @@ const createSesion = (res, usuario) => {
       .cookie("refreshToken", refresh,
         {
           sameSite: "lax",
-          secure: true,
+          secure: process.env.NODE_ENV === 'production',
           maxAge: 7 * 24 * 60 * 60 * 1000
         })
       .cookie("accessToken", access,
         {
           sameSite: "lax",
-          secure: true,
+          secure: process.env.NODE_ENV === 'production',
           maxAge: 5 * 60 * 60 * 1000
         })
     console.log("Cookies creadas",)
@@ -37,11 +37,13 @@ const createSesion = (res, usuario) => {
 
 const verifyRefreshToken = (refreshToken) => {
   try {
+    console.log(refreshToken)
     const user = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH)
-    const {iat, exp, password, created_at, main_board, ...newUser} = user
+    console.log(user)
+    const { iat, exp, password, created_at, main_board, ...newUser } = user
     return newUser
   } catch (error) {
-    console.log(error.message)
+    console.log("Refresh: ", error.message)
     return null
   }
 }
@@ -49,35 +51,35 @@ const verifyRefreshToken = (refreshToken) => {
 const verifyAccessToken = (accessToken) => {
   try {
     const user = jwt.verify(accessToken, process.env.JWT_SECRET)
-    const {iat, exp, password, created_at, main_board, ...newUser} = user
+    const { iat, exp, password, created_at, main_board, ...newUser } = user
     return newUser
   } catch (error) {
-    console.log(error.message)
+    console.log("access:  ", error.message)
     return null
   }
 }
 
 const verifySesion = (req, res, next) => {
-  
+
   try {
     const refreshToken = req.cookies["refreshToken"]
     const accessToken = req.cookies["accessToken"]
-    
+
     if (!accessToken && !refreshToken) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
 
     if (!accessToken && refreshToken) {
-      
+
       const user = verifyRefreshToken(refreshToken)
-      
+
       if (!user) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
       try {
         const access = createAccessToken(user)
-        res.cookie('accessToken', access, { sameSite: "lax", secure: true, maxAge: 5 * 60 * 60 * 1000 })
+        res.cookie('accessToken', access, { sameSite: "lax", secure: process.env.NODE_ENV === 'production', maxAge: 5 * 60 * 60 * 1000 })
         req.user = user
-        next()
+        return next()
       } catch (error) {
         console.log("error: ", error.message)
-        return res.status(500).json({ confirmation: false, message: 'Something went wrong!' });
+        return res.status(500).json({ confirmation: false , message: 'Something went wrong!' });
       }
     }
     // if there is an access token:
@@ -85,7 +87,6 @@ const verifySesion = (req, res, next) => {
     if (!user) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
     req.user = user
     next()
-
   } catch (error) {
     console.log(error.message)
     return res.status(500).json({ confirmation: false, message: 'Something went wrong!' });
@@ -94,5 +95,7 @@ const verifySesion = (req, res, next) => {
 
 module.exports = {
   createSesion,
-  verifySesion
+  verifySesion,
+  verifyRefreshToken,
+  verifyAccessToken
 }

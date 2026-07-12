@@ -8,6 +8,7 @@ const morgan = require('morgan')
 const loginRoute = require('./routes/login')
 const cookieParser = require('cookie-parser')
 const { conexion } = require('./controllers/connection')
+const { verifyAccessToken, verifyRefreshToken } = require('./utils/jwtVerifications')
 
 const PORT = 3000 || process.env.PORT
 
@@ -26,18 +27,52 @@ const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
+    credentials: true
   }
 });
 
-const onConnection = (socket) => {
-  console.log('A user connected');
+const parseCookies = (header) => {
+  const cookies = {};
+  if (!header) return cookies;
+  header.split(';').forEach(pair => {
+    const [name, ...rest] = pair.split('=');
+    cookies[name.trim()] = rest.join('=').trim();
+  });
+  return cookies;
+};
 
-  socket.on('selectBoard', async (dataUser) => {
-    const { data } = await conexion.from('user').update({"main_board": dataUser}).eq("id", 1).select("*")
-    if(data.length >  0) {
-      socket.emit('selectBoardResponse', data)
-    } 
-    
+io.use((socket, next) => {
+  const cookies = parseCookies(socket.handshake.headers.cookie || socket.request.headers.cookie);
+  const accessToken = cookies.accessToken;
+  const refreshToken = cookies.refreshToken;
+
+  if (!accessToken && !refreshToken) {
+    return next(new Error('Authentication required'));
+  }
+
+  const user = accessToken
+    ? verifyAccessToken(accessToken)
+    : verifyRefreshToken(refreshToken);
+
+  if (!user) {
+    return next(new Error('Authentication required'));
+  }
+
+  socket.user = user;
+  next();
+});
+
+const onConnection = (socket) => {
+
+  socket.on('changeBoard', async (dataUser) => {
+    try {
+      const { data } = await conexion.from('user').update({ "main_board": dataUser }).eq("id", socket?.user?.id).select("*")
+      if (data.length > 0) {
+        console.log("Board changed successfully")
+      }
+    } catch {
+      console.log("Error changing board")
+    }
   });
 
   socket.on('disconnect', () => {
@@ -46,10 +81,6 @@ const onConnection = (socket) => {
 }
 
 io.on('connection', onConnection)
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-})
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
