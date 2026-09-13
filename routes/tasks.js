@@ -1,5 +1,6 @@
 const express = require('express');
 const tasksRoute = express.Router();
+const { createTask, removeTask } = require('../databaseActions/tasksDB')
 
 // Support query parameter: GET /api/tasks?columnId=xxx
 tasksRoute.get('/', async (req, res) => {
@@ -23,6 +24,24 @@ tasksRoute.get('/:columnId', async (req, res) => {
   }
   return res.status(400).json({ confirmation: false });
 });
+
+tasksRoute.post("/", async (req, resp) => {
+  const {task, columnId} = req.body
+  const data = await createTask(task, columnId)
+
+  if(!data) return resp.status(400).json({ confirmation: false, message: "Error, no se pudo crear la tarea" });
+  resp.status(200).json({ confirmation: true, data })
+})
+
+tasksRoute.delete("/", async (req, resp) => {
+  const { taskId, columnId } = req.body;
+
+  const confirmation = await removeTask(taskId, columnId);
+
+  console.log(confirmation)
+
+  resp.json("holas");
+})
 
 module.exports = {
   tasksRoute

@@ -36,11 +36,11 @@ const getBoardInfo = async (boardName) => {
     // Check if the board really exists
     let converData = []
     const { data } = await conexion.from('boards').select('*, columns(*)').eq('board_name', boardName)
-
+    console.log('.... Informacion sobre la data recolectada ....')
     if (data.length > 0) {
       for (const item of data[0].columns) {
         const tasks = await getTasks(item)
-        converData = { ...converData, [item.column_name]: tasks }
+        converData = { ...converData, [item.title]: { tasks, columnId: item.id } }
       }
       return converData
     }
@@ -55,9 +55,37 @@ const getTasks = async (column) => {
   const { data } = await conexion.from('columns').select("tasks(*)").eq("id", column.id)
   return data[0].tasks
 }
+
+const getFavorite = async (boardId) => {
+  try {
+    const { data } = await conexion.from('boards').select("is_favorite").eq('id', boardId);
+    if(!data) return false
+    return data[0].is_favorite
+  } catch (error) {
+    console.log('Ocurrio un error en verificar la informacion.')
+    console.log(error.message)
+  }
+}
+
+const createColumn = async (name) => { 
+
+  try{
+    const { data } = await conexion.from('columns').insert({title: name, id_board: "01f547e3-06dd-4195-a858-b17f3857aff9" }).select()
+    // additionally it would be perfect to check if the id is really belonging to this client. 
+    console.log("aca esta la informacion de mi data: ", data)
+    if (data) return data;
+    return false;
+  } catch(e) {
+    console.error(e)
+    return false
+  }
+}
+
 module.exports = {
   getAllBoards,
   createBoard,
   getFavorites,
-  getBoardInfo
+  getBoardInfo,
+  getFavorite,
+  createColumn
 }

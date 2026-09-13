@@ -9,6 +9,7 @@ const loginRoute = require('./routes/login')
 const cookieParser = require('cookie-parser')
 const { conexion } = require('./controllers/connection')
 const { verifyAccessToken, verifyRefreshToken } = require('./utils/jwtVerifications')
+const { userRoute } = require('./routes/user')
 
 const PORT = 3000 || process.env.PORT
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/boards', boardRoute)
 app.use('/api/tasks', tasksRoute)
 app.use('/api/auth', loginRoute)
+app.use('/api/user', userRoute)
 
 const server = http.createServer(app)
 
@@ -74,6 +76,36 @@ const onConnection = (socket) => {
       console.log("Error changing board")
     }
   });
+
+  socket.on("addFavorite", async (boardId) => {
+    try {
+      const { data } = await conexion.from('boards').update({ "is_favorite": true }).eq("id", boardId).select("*")
+    } catch (error) {
+      console.log('Ocurrio un error en agregar el favorito', error.message)
+    }
+  })
+
+  socket.on("removeFavorite", async (boardId) => {
+    try {
+      const { data } = await conexion.from('boards').update({ "is_favorite": false }).eq("id", boardId).select("*")
+    } catch (error) {
+      console.log('Ocurrio un error en eliminar el favorito', error.message)
+    }
+  })
+
+  socket.on("checkFavorite", async (info) => {
+    try {
+      const { data } = await conexion.from('boards').select("is_favorite").eq("id", info.board_id).eq("user_id", info.user_id)
+      if(data[0].is_favorite) {
+        console.log(data[0].is_favorite)
+        socket.emit("checkFavoriteResponse", true)
+      }
+    } catch (error) {
+      console.log('Ocurrio un error en verificar el favorito.', error.messsage)
+      socket.emit("checkFavoriteResponse", false)
+    }
+
+  })
 
   socket.on('disconnect', () => {
     console.log('User disconnected');
