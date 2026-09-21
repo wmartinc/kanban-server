@@ -1,5 +1,4 @@
 const express = require('express')
-const { conexion } = require('../controllers/connection');
 const { transporter, emailTemplate, generateOTP } = require('../controllers/email');
 const { checkEmail } = require('../utils/format');
 const { saveOtp, getOtp, validateOtp, checkOtpValidation, changePassword } = require('../databaseActions/user');

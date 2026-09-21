@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser')
 const { conexion } = require('./controllers/connection')
 const { verifyAccessToken, verifyRefreshToken } = require('./utils/jwtVerifications')
 const { userRoute } = require('./routes/user')
+const { changeColumnName, deleteColumn } = require('./databaseActions/columnsDB')
 
 const PORT = 3000 || process.env.PORT
 
@@ -105,6 +106,16 @@ const onConnection = (socket) => {
       socket.emit("checkFavoriteResponse", false)
     }
 
+  })
+
+  socket.on('changeColumnName', async (columnInformation) => {
+    console.log(" vro")
+    await changeColumnName(columnInformation)
+  })
+
+  socket.on('deleteColumn', async (columnId) => {
+    console.log('entra aca')
+    await deleteColumn(columnId)
   })
 
   socket.on('disconnect', () => {

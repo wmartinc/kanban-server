@@ -26,10 +26,8 @@ const createSesion = (res, usuario) => {
           secure: process.env.NODE_ENV === 'production',
           maxAge: 5 * 60 * 60 * 1000
         })
-    console.log("Cookies creadas",)
     return true
   } catch (error) {
-    console.log(error.message)
     return false
   }
 

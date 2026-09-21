@@ -1,2 +1,5 @@
 .env
 /node_modules
+AGENTS.md
+opencode.json
+/.gitignore

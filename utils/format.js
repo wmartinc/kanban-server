@@ -16,12 +16,8 @@ const checkDescriptionBoard = (description) => {
   return false
 }
 
-const checkGeneralText = (text) => {
-}
-
 module.exports = {
   checkEmail,
   checkTitleBoard,
-  checkDescriptionBoard,
-  checkGeneralText
+  checkDescriptionBoard
 }

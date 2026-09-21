@@ -1,9 +1,14 @@
 const express = require('express');
 const { getAllBoards, createBoard, getFavorites, getBoardInfo, getFavorite, createColumn } = require('../databaseActions/boardsDB');
 const { checkTitleBoard, checkDescriptionBoard } = require('../utils/format');
+const { verifySesion } = require('../utils/jwtVerifications');
 const boardRoute = express.Router()
 
+boardRoute.use(verifySesion)
+
 boardRoute.get('/', async(req, resp)=> {
+  if(!req.user) return res.status(401).json({message: 'Something went wrong!', confirmation: false});
+
   const boards = await getAllBoards();
   return resp.status(200).json({confirmation: true, content: boards});
 })
@@ -36,16 +41,13 @@ boardRoute.get('/checkFavorite/:id', async(req, resp) => {
 boardRoute.get('/board/:boardName', async(req, res) => {
   const { boardName } = req.params;
   
-  const boardInformation = await getBoardInfo(boardName);
+  const boardInformation = await getBoardInfo();
   if(boardInformation) return res.status(200).json({confirmation: true, boardInformation});
   return res.status(400).json({confirmation: false})
 })
 
 boardRoute.post("/createColumn", async(req, resp) => {
   const { columnName } = req.body;
-
-  console.log("here", columnName)
-
   const columnCreated = await createColumn(columnName)
 
   if(columnCreated) return resp.status(201).json({confirmation: true, content: columnCreated})

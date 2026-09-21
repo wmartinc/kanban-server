@@ -1,6 +1,9 @@
 const express = require('express');
 const tasksRoute = express.Router();
-const { createTask, removeTask } = require('../databaseActions/tasksDB')
+const { getTasksByColumnId, createTask, removeTask } = require('../databaseActions/tasksDB')
+const { verifySesion } = require('../utils/jwtVerifications');
+
+tasksRoute.use(verifySesion)
 
 // Support query parameter: GET /api/tasks?columnId=xxx
 tasksRoute.get('/', async (req, res) => {
@@ -35,12 +38,10 @@ tasksRoute.post("/", async (req, resp) => {
 
 tasksRoute.delete("/", async (req, resp) => {
   const { taskId, columnId } = req.body;
-
   const confirmation = await removeTask(taskId, columnId);
 
-  console.log(confirmation)
-
-  resp.json("holas");
+  if(confirmation) return resp.status(200).json({ confirmation: true, message: "Task removed correctly" });
+  return resp.status(400).json({ confirmation: false, message: "Error, task not removed" })
 })
 
 module.exports = {
