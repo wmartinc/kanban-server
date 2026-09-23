@@ -1,6 +1,22 @@
 const { conexion } = require('../controllers/connection');
 
-const getTasksByColumnId = async (columnId) => {
+const columnBelongsToUser = async (columnId, userId) => {
+  try {
+    const { data: column } = await conexion.from('columns').select('id_board').eq('id', columnId)
+    if (!column || column.length === 0) return false
+
+    const { data: board } = await conexion.from('boards').select('user_id').eq('id', column[0].id_board)
+    if (!board || board.length === 0) return false
+
+    return board[0].user_id === userId
+  } catch (error) {
+    console.log(error.message);
+    return false
+  }
+}
+
+const getTasksByColumnId = async (columnId, userId) => {
+  if (!(await columnBelongsToUser(columnId, userId))) return false;
   try {
     const { data } = await conexion
       .from('tasks')
@@ -15,7 +31,8 @@ const getTasksByColumnId = async (columnId) => {
   }
 };
 
-const createTask = async (task, columnId) => {
+const createTask = async (task, columnId, userId) => {
+  if (!(await columnBelongsToUser(columnId, userId))) return false;
   task = {...task, column_id: columnId}
   try {
     const { data } = await conexion.from('tasks').insert(task).select();
@@ -26,7 +43,8 @@ const createTask = async (task, columnId) => {
   }
 };
 
-const removeTask = async (taskId, columnId) => {
+const removeTask = async (taskId, columnId, userId) => {
+  if (!(await columnBelongsToUser(columnId, userId))) return false;
   try {
     const { data, error } = await conexion
       .from('tasks')

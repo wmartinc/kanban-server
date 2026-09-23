@@ -19,12 +19,24 @@ const getUserById = async (userId) => {
       .select('*')
       .eq('id', userId);
 
-    console.log("Datos desde data: ", data)
     if (data.length > 0) return data[0]
     return false
   } catch (error) {
     console.log(error.message)
     return false
+  }
+}
+
+const createUser = async (email, password, username) => {
+  try {
+    const hashedPassword = await hashPassword(password);
+    const { data, error } = await conexion.from('user').insert({ username, email, password: hashedPassword }).select();
+    if (error) throw error;
+    if (data.length > 0) return data[0];
+    return false;
+  } catch (error) {
+    console.log(error.message);
+    return false;
   }
 }
 
@@ -100,6 +112,7 @@ const changePassword = async (password, passwordConfirmation, userId = 1) => {
 module.exports = {
   getUsuarioByEmail,
   getUserById,
+  createUser,
   saveOtp,
   getOtp,
   validateOtp,

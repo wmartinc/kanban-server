@@ -9,7 +9,7 @@ userRoute.put('/reset-password', async (req, res) => {
   const { email } = req.body;
   const isEmailCorrect = checkEmail(email)
   if (!isEmailCorrect) {
-    return res.status(400).json({ error: 'Email no valido' });
+    return res.status(400).json({ confirmation: false, message: 'Email no valido' });
   }
   
   const otp = generateOTP()
@@ -21,7 +21,7 @@ userRoute.put('/reset-password', async (req, res) => {
   })
 
 
-  return res.json({ message: "Correo enviado exitosamente" })
+  return res.json({ confirmation: true, message: "Correo enviado exitosamente" })
 })
 
 userRoute.post('/check-otp', async (req, resp) => {
@@ -39,7 +39,6 @@ userRoute.post('/check-otp', async (req, resp) => {
 
 userRoute.put('/change-password', async (req, res) => {
   const { password, passwordConfirmation } = req.body;
-  console.log(password, passwordConfirmation)
 
   if(!password || !passwordConfirmation) return res.status(400).json({message: "Ocurrio un error", confirmation: false});
   const isOtpValid = await checkOtpValidation();

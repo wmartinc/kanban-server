@@ -7,11 +7,14 @@ tasksRoute.use(verifySesion)
 
 // Support query parameter: GET /api/tasks?columnId=xxx
 tasksRoute.get('/', async (req, res) => {
+  const user = req.user
+  if(!user) return res.status(401).json({message: 'Something went wrong!', confirmation: false});
+
   const { columnId } = req.query;
   if (!columnId) {
     return res.status(400).json({ confirmation: false, message: 'columnId is required as a query parameter or path parameter' });
   }
-  const tasks = await getTasksByColumnId(columnId);
+  const tasks = await getTasksByColumnId(columnId, user.id);
   if (tasks !== null) {
     return res.status(200).json({ confirmation: true, tasks });
   }
@@ -20,8 +23,11 @@ tasksRoute.get('/', async (req, res) => {
 
 // Support path parameter: GET /api/tasks/:columnId
 tasksRoute.get('/:columnId', async (req, res) => {
+  const user = req.user
+  if(!user) return res.status(401).json({message: 'Something went wrong!', confirmation: false});
+
   const { columnId } = req.params;
-  const tasks = await getTasksByColumnId(columnId);
+  const tasks = await getTasksByColumnId(columnId, user.id);
   if (tasks !== null) {
     return res.status(200).json({ confirmation: true, tasks });
   }
@@ -29,16 +35,22 @@ tasksRoute.get('/:columnId', async (req, res) => {
 });
 
 tasksRoute.post("/", async (req, resp) => {
+  const user = req.user
+  if(!user) return resp.status(401).json({message: 'Something went wrong!', confirmation: false});
+
   const {task, columnId} = req.body
-  const data = await createTask(task, columnId)
+  const data = await createTask(task, columnId, user.id)
 
   if(!data) return resp.status(400).json({ confirmation: false, message: "Error, no se pudo crear la tarea" });
   resp.status(200).json({ confirmation: true, data })
 })
 
 tasksRoute.delete("/", async (req, resp) => {
+  const user = req.user
+  if(!user) return resp.status(401).json({message: 'Something went wrong!', confirmation: false});
+
   const { taskId, columnId } = req.body;
-  const confirmation = await removeTask(taskId, columnId);
+  const confirmation = await removeTask(taskId, columnId, user.id);
 
   if(confirmation) return resp.status(200).json({ confirmation: true, message: "Task removed correctly" });
   return resp.status(400).json({ confirmation: false, message: "Error, task not removed" })

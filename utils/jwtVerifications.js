@@ -35,9 +35,7 @@ const createSesion = (res, usuario) => {
 
 const verifyRefreshToken = (refreshToken) => {
   try {
-    console.log(refreshToken)
     const user = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH)
-    console.log(user)
     const { iat, exp, password, created_at, main_board, ...newUser } = user
     return newUser
   } catch (error) {

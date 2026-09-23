@@ -12,7 +12,7 @@ const { verifyAccessToken, verifyRefreshToken } = require('./utils/jwtVerificati
 const { userRoute } = require('./routes/user')
 const { changeColumnName, deleteColumn } = require('./databaseActions/columnsDB')
 
-const PORT = 3000 || process.env.PORT
+const PORT = process.env.PORT || 3000
 
 const app = express()
 app.use(cookieParser())
@@ -69,10 +69,7 @@ const onConnection = (socket) => {
 
   socket.on('changeBoard', async (dataUser) => {
     try {
-      const { data } = await conexion.from('user').update({ "main_board": dataUser }).eq("id", socket?.user?.id).select("*")
-      if (data.length > 0) {
-        console.log("Board changed successfully")
-      }
+      await conexion.from('user').update({ "main_board": dataUser }).eq("id", socket?.user?.id).select("*")
     } catch {
       console.log("Error changing board")
     }
@@ -80,7 +77,7 @@ const onConnection = (socket) => {
 
   socket.on("addFavorite", async (boardId) => {
     try {
-      const { data } = await conexion.from('boards').update({ "is_favorite": true }).eq("id", boardId).select("*")
+      await conexion.from('boards').update({ "is_favorite": true }).eq("id", boardId).select("*")
     } catch (error) {
       console.log('Ocurrio un error en agregar el favorito', error.message)
     }
@@ -88,7 +85,7 @@ const onConnection = (socket) => {
 
   socket.on("removeFavorite", async (boardId) => {
     try {
-      const { data } = await conexion.from('boards').update({ "is_favorite": false }).eq("id", boardId).select("*")
+      await conexion.from('boards').update({ "is_favorite": false }).eq("id", boardId).select("*")
     } catch (error) {
       console.log('Ocurrio un error en eliminar el favorito', error.message)
     }
@@ -98,7 +95,6 @@ const onConnection = (socket) => {
     try {
       const { data } = await conexion.from('boards').select("is_favorite").eq("id", info.board_id).eq("user_id", info.user_id)
       if(data[0].is_favorite) {
-        console.log(data[0].is_favorite)
         socket.emit("checkFavoriteResponse", true)
       }
     } catch (error) {
@@ -109,12 +105,10 @@ const onConnection = (socket) => {
   })
 
   socket.on('changeColumnName', async (columnInformation) => {
-    console.log(" vro")
     await changeColumnName(columnInformation)
   })
 
   socket.on('deleteColumn', async (columnId) => {
-    console.log('entra aca')
     await deleteColumn(columnId)
   })
 
