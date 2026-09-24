@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000
 const app = express()
 app.use(cookieParser())
 app.use(morgan('dev'))
-app.use(cors({ origin: "http://localhost:5173", credentials: true }))
+app.use(cors({ origin: "https://kanbannotes.netlify.app", credentials: true }))
 app.use(express.json());
 
 app.use('/api/boards', boardRoute)
@@ -29,7 +29,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://kanbannotes.netlify.app",
     credentials: true
   }
 });
