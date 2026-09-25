@@ -30,7 +30,8 @@ const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
     origin: ["https://kanbannotes.netlify.app"],
-    credentials: true
+    credentials: true,
+    
   }
 });
 

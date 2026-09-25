@@ -16,14 +16,14 @@ const createSesion = (res, usuario) => {
     res
       .cookie("refreshToken", refresh,
         {
-          sameSite: "lax",
-          secure: process.env.NODE_ENV === 'production',
+          sameSite: "none",
+          secure: true,
           maxAge: 7 * 24 * 60 * 60 * 1000
         })
       .cookie("accessToken", access,
         {
-          sameSite: "lax",
-          secure: process.env.NODE_ENV === 'production',
+          sameSite: "none",
+          secure: true,
           maxAge: 5 * 60 * 60 * 1000
         })
     return true
@@ -70,7 +70,7 @@ const verifySesion = (req, res, next) => {
       if (!user) return res.status(401).json({ confirmation: false, message: 'Something went wrong!' });
       try {
         const access = createAccessToken(user)
-        res.cookie('accessToken', access, { sameSite: "lax", secure: process.env.NODE_ENV === 'production', maxAge: 5 * 60 * 60 * 1000 })
+        res.cookie('accessToken', access, { sameSite: "none", secure: true, maxAge: 5 * 60 * 60 * 1000 })
         req.user = user
         return next()
       } catch (error) {

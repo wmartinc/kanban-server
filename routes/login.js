@@ -43,8 +43,8 @@ loginRoute.post('/signup', async (req, res) => {
 
   // El OTP hizo match: eliminar la cookie guardada
   res.clearCookie('signupOtp', {
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === 'production'
+    sameSite: "none",
+    secure: true
   });
 
   const userCreated = await createUser(email, password, userName);
@@ -69,7 +69,8 @@ loginRoute.post('/signup-check', async (req, res) => {
   // Guardar el OTP solo en una cookie
   try {
     res.cookie('signupOtp', otp, {
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: "none",
+      secure: true,
       httpOnly: true,
       maxAge: 10 * 60 * 1000
     });
@@ -122,12 +123,12 @@ loginRoute.get('/login', verifySesion, async (req, resp) => {
 loginRoute.post('/logout', (req, res) => {
   try {
     res.clearCookie('accessToken', {
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === 'production'
+      sameSite: "none",
+      secure: true
     });
     res.clearCookie('refreshToken', {
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === 'production'
+      sameSite: "none",
+      secure: true
     });
 
     return res.json({ confirmation: true, message: "Sesion cerrada exitosamente" });
