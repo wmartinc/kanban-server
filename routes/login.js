@@ -69,7 +69,6 @@ loginRoute.post('/signup-check', async (req, res) => {
   // Guardar el OTP solo en una cookie
   try {
     res.cookie('signupOtp', otp, {
-      sameSite: "lax",
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 10 * 60 * 1000
